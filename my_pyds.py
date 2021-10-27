@@ -39,8 +39,45 @@ class Masse(MassFunction):
             text += f'{set_to_str(k)} : {v}\n'
         return text
 
-def set_to_str(set_):
-    return "{" + ', '.join([str(x) for x in set_]) + "}"
+
+# use this class to combine multiple sources (having the same 'omega')
+class Sources(list):
+    def __init__(self, omega):
+        super().__init__()
+        self.omega = omega
+        self.sources_affaiblis = set()
+
+    def add(self, source):
+        self.append(Masse(source, self.omega))
+
+    # affaiblir une source avec un taux alpha d'affaiblissement
+    def affaiblir(self, source_index, alpha):
+        assert 0 <= alpha <= 1, 'alpha must be in range [0,1]'
+        source = self[source_index]
+        for s in source.keys():
+            if s != self.omega: # affaiblire la masse des elements autre que omega
+                source[s] = Decimal(1 - alpha)*Decimal(source[s])
+            else: # augmenter la masse de omega
+                source[s] = Decimal(1 - alpha)*Decimal(source[s]) + Decimal(alpha)
+            source[s] = float(source[s])
+        
+        # ajouter la source au sources affaiblis (affin de bien combiner par la suite)
+        self.sources_affaiblis.add(source_index)
+
+    def __str__(self):
+        text = ''
+        for i, s in enumerate(self):
+            text += f'resource {i+1} :\n'
+            text += str(s) + '\n'
+        return text
+
+    def show_source(self, source_index):
+        print(f'resource {source_index+1} :')
+        print(self[source_index])
+
+
+def set_to_str(s):
+    return "{" + ', '.join([str(x) for x in s]) + "}"
 
 def str_to_set(text):
     return frozenset(text.split())
