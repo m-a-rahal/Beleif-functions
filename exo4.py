@@ -1,6 +1,7 @@
-from my_pyds import Mass, Sources, pritty_print, show_dict
+from my_pyds import Sources, pritty_print, show_dict
 
 def main():
+    global sources
     # exercice 4
     # on écrit Ω comme étant des mots séparés par des virgules
     omega = 'énergies_fossiles, transport, centrales_therm, chauff_bois, naturel'

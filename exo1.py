@@ -1,6 +1,7 @@
-from my_pyds import Mass, Sources
+from my_pyds import Sources
 
 def main():
+    global sources
     # exercice 1
     # on écrit Ω comme étant des mots séparés par des virgules
     omega = 'p, c, s'
