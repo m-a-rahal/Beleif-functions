@@ -6,15 +6,33 @@ getcontext().prec=10
 # -----------------------------------------------------------------------------------------------------------------------------------
 
 # this class is like MassFunction, but it automatically accounts for Ω  (descernment frame — "cadre de descernement" in french)
-class Masse(MassFunction):
-    def __init__(self, source, omega):
-        if isinstance(source, dict):
-            s = 0.0
-            for k,v in source.items():
-                s += v
-            if not source.get(omega, False) :
-                source[omega] = float(1 - Decimal(s))
+class Mass(MassFunction):
+    def __init__(self, source, omega = None):
+        """
+        Constructs a mass function. must receive:
+        - omega : string with comma seperated names, e.g : "A1, A2, A3", or "car emissions, central heating"
+        - source : a set containing all the sets and their massses e.g : {'a' : 0.1, 'b, c' : '0.2'}, or {'industrial cause, natural cause' : 0.5}
+        """
+        if omega is None:
+            raise Exception('must specify omega in mass definition')
+        s = 0.0
+        for k,v in source.items():
+            s += v
+        if not source.get(omega, False) :
+            source[omega] = float(1 - Decimal(s))
+
         super().__init__(source)
+
+    @staticmethod
+    def transform_source(source):
+        """
+        transforms source from comma separeted strings into sets
+        """
+        new_source = {}
+        for k,v in source.items():
+            item_set = frozenset([name.strip() for name in k.split(',')])
+            new_source[item_set] = v
+
 
     # just like bel() but you pass a string (space separeted names)
     def bel_str(self, source):
@@ -49,7 +67,7 @@ class Sources(list):
         self.sources_affaiblis = set()
 
     def add(self, source):
-        self.append(Masse(source, self.omega))
+        self.append(Mass(source, self.omega))
 
     # affaiblir une source avec un taux alpha d'affaiblissement
     def affaiblir(self, source_index, alpha):
@@ -99,10 +117,10 @@ class Sources(list):
             if show_steps:
                 print(f'combinaison {count} :'); count += 1
                 print('k =', s1.conflict(s2))
-                print(Masse(res, self.omega))
+                print(Mass(res, self.omega))
 
             s1 = res
-        return Masse(s1, self.omega)
+        return Mass(s1, self.omega)
 
 
 def set_to_str(s):
