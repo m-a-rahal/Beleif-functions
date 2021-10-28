@@ -1,7 +1,5 @@
 from my_pyds import Sources, pritty_print, show_dict
 
-sources = None
-
 def init(show = True):
     global sources # making sources public will help us in the presentation so we can import sources and simply print out the different stuff (interactive mode)
     # exercice 4
