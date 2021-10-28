@@ -28,8 +28,7 @@ def main():
     # combiner les sources (en ignorant celles avec m(Ω) = 1)
     print(f'--- combinaison des sources ---------------------------\n')
     m = sources.combine(show_steps = True)
-    print(f'--- après combinaison ---------------------------\n')
-    print(m)
+
 
 if __name__ == '__main__':
     init()

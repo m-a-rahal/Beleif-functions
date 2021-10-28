@@ -28,8 +28,7 @@ def main():
     # combiner les sources (en ignorant celles avec m(Ω) = 1)
     pritty_print("combinaison des sources (commes rien n'est indiqué, les sources sont considérés fiables, et la combinaison de ces dérnier est faite en conjonction)")
     m = sources.combine(show_steps = True)
-    pritty_print('après combinaison')
-    print(m)
+
 
 if __name__ == '__main__':
     init()

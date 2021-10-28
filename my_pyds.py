@@ -1,10 +1,16 @@
 from pyds import MassFunction
+import time
 DECIMAL_PRECISTION = 5 # round values for before printing them on screen
 
 # IMPLEMENTER LA RECONNAISSANCE DES SPECIFITE DES FCTS DE MASSES !!!!!
 
 # this class is like MassFunction, but it automatically accounts for Ω  (descernment frame — "cadre de descernement" in french)
 class Mass(MassFunction):
+    IGNORANCE_TOTALE = 0
+    PROBA = 1
+    POSSIB = 2
+    GENERAL = 3
+    CATEGORIQUE = 4
     def __init__(self, source, omega = None, normalize = False, index = None):
         """
         Constructs a mass function. must receive:
@@ -64,6 +70,37 @@ class Mass(MassFunction):
         for k, v in self.items():
             self[k] = v * factor
         return self
+
+    def detect_type(self, return_str = True): 
+        focals = {} # elements with mass ≠ 0
+        for k,v in self.items():
+            if round(v, DECIMAL_PRECISTION) > 0: focals[k] = v
+
+        # cas triviale
+        if self[self.frame()] == 1: # means m(Ω) = 1 
+            return 'ignorance totale (masse du cadre de descernement = 1)' if return_str else IGNORANCE_TOTALE
+        elif len(focals) == 1 and len(focals.keys()[0]) > 0: # one focal element (not ∅) must have mass = 1 
+            return f"cadre catégorique, m({set_to_str(focals.keys()[0])}) = 1" if return_str else CATEGORIQUE
+
+        # sort focal elements form smallest to biggest (to detect inclusion)
+        items = sorted(focals.items(), key= lambda x : len(x[0]))
+        probabiliste = True # until proven otherwise
+        possibiliste = True # until proven otherwise
+
+        for i,(s,v) in enumerate(items):
+            if len(s) != 1:
+                probabiliste = False # probabilist means all focal elements are singletons
+            if i > 0 and not s.issuperset(items[i-1][0]):
+                possibiliste = False # possibilist means elements are one inside the other (so if there are two different size, one must be inside the other)
+
+        if probabiliste :
+            return 'cadre probabiliste, toutes les elements focaux sont des singletons' if return_str else PROBA
+        if possibiliste :
+            return 'cadre possibiliste, les elements focaux sont emboités' if return_str else POSSIB
+        # if none of the above is true, it's the general case
+        return 'cadre général de la théorie des fonctions de croyance' if return_str else GENERAL
+
+
 
     @staticmethod
     def transform_source(source):
@@ -170,7 +207,8 @@ class Sources(list):
         text = ''
         for i, s in enumerate(self):
             text += f'masses de la source {i+1} :\n'
-            text += str(s) + '\n'
+            text += str(s)
+            text += f'>>> type = {s.detect_type()}\n\n'
         return text
 
     def show_source(self, source_index):
@@ -205,7 +243,13 @@ class Sources(list):
                 print(Mass(res, self.omega))
 
             s1 = res
-        return Mass(s1, self.omega)
+        result = Mass(s1, self.omega)
+        if show_steps:
+            m_type = result.detect_type()
+            print(f'>>> type = {m_type}\n\n')
+            best = sorted(result.items(), key= lambda x : x[1], reverse = True)[0]
+            print(f"l'element le plus probable est : {set_to_str(best[0])}, avec masse = {round(best[1], DECIMAL_PRECISTION)}")  
+        return result
 
 
 
