@@ -1,9 +1,11 @@
 from pyds import MassFunction
 DECIMAL_PRECISTION = 5 # round values for before printing them on screen
 
+# IMPLEMENTER LA RECONNAISSANCE DES SPECIFITE DES FCTS DE MASSES !!!!!
+
 # this class is like MassFunction, but it automatically accounts for Ω  (descernment frame — "cadre de descernement" in french)
 class Mass(MassFunction):
-    def __init__(self, source, omega = None):
+    def __init__(self, source, omega = None, normalize = False, index = None):
         """
         Constructs a mass function. must receive:
         - omega : string with comma seperated names, e.g : "A1, A2, A3", or "car emissions, central heating"
@@ -16,14 +18,21 @@ class Mass(MassFunction):
         source = Mass.transform_source(source)
         omega = str_to_set(omega)
 
+        if normalize:
+            source = Mass.normaliser(source, index = index)
         s = 0.0
         for k,v in source.items():
             s += v
         if not source.get(omega, False) :
             source[omega] = 1 - s
-
         for s in source:
-            self[s] = source[s]
+            try:
+                self[s] = source[s]
+            except Exception as e:
+                if abs(source[s]) < 1/10**DECIMAL_PRECISTION:
+                    self[s] = 0
+                else:
+                    raise e # raise hell
 
 
     def conflict(self, other):
@@ -86,10 +95,24 @@ class Mass(MassFunction):
         """
         return self.q(str_to_set(source))
 
-    def show_beleif(self):
-        i = 1
-        for ensemble, bel in self.bel().items():
-            print(f'{i}- {set_to_str(ensemble)} : {round(bel,DECIMAL_PRECISTION)}'); i += 1
+    @staticmethod
+    def normaliser(source, sum_of_weights = None, index = None):
+        """
+        if the sum of weights is greater than 1, the source will be normalized
+        """
+        if sum_of_weights is None:
+            sum_of_weights = sum([v for k,v in source.items()])
+        if index is None:
+            index = dict(source)
+        if sum_of_weights > 1:
+            print('*'*100)
+            print(f'la source {index}')
+            print(f'a une somme de masses = {sum_of_weights}')
+            print(f'normalisation de la source en divisant par {sum_of_weights} ...')
+            print('*'*100)
+            for s in source:
+                source[s] /= sum_of_weights
+        return source
 
     def __str__(self):
         text = ''
@@ -98,6 +121,21 @@ class Mass(MassFunction):
                 text += f'{set_to_str(k)} : {round(v,DECIMAL_PRECISTION)}\n'
         return text
 
+    # def bel(self):
+    #     beleifs = {}
+    #     for s in self.all():
+    #         for sub in self:
+    #             if sub.issubset(s):
+    #                 beleifs[s] = beleifs.get(s,0) + self[sub]
+    #     return beleifs
+
+    # def pl(self):
+    #     plausibilities = {}
+    #     for s in self.all():
+    #         for sub in self:
+    #             if s & sub:
+    #                 plausibilities[s] = plausibilities.get(s,0) + self[sub]
+    #     return plausibilities
 
 class Sources(list):
     def __init__(self, omega):
@@ -108,8 +146,9 @@ class Sources(list):
         self.omega = str_to_set(omega)
         self.sources_affaiblis = set()
 
-    def add(self, source):
-        self.append(Mass(source, self.omega))
+    def add(self, source, normalize = False):
+        index = len(self) + 1 if normalize else None
+        self.append(Mass(source, self.omega, normalize, index = index))
 
     def affaiblir(self, source_index, alpha):
         """
@@ -170,6 +209,7 @@ class Sources(list):
 
 
 
+
 def str_to_set(text):
     """
     transforms comma separated string into a set
@@ -185,3 +225,13 @@ def str_to_set(text):
 def set_to_str(s):
     return "{" + ', '.join([str(x) for x in s]) + "}"
 
+def pritty_print(title):
+    print(f"\n--- {title} ---------------------------\n")
+
+
+def show_dict(dic, skip_null_values = False, show_count = False):
+    i = 1
+    for ensemble, bel in dic.items():
+        if bel > 0.0 :
+            count = str(i) if show_count else ''
+            print(f'{count}- {set_to_str(ensemble)} : {round(bel,DECIMAL_PRECISTION)}'); i += 1
