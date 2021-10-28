@@ -36,7 +36,8 @@ class Masse(MassFunction):
     def __str__(self):
         text = ''
         for k,v in sorted(self.items(), key = lambda x : len(x[0])):
-            text += f'{set_to_str(k)} : {v}\n'
+            if v > 0.0 or k == self.frame():
+                text += f'{set_to_str(k)} : {v}\n'
         return text
 
 
@@ -74,6 +75,34 @@ class Sources(list):
     def show_source(self, source_index):
         print(f'resource {source_index+1} :')
         print(self[source_index])
+
+    def combine(self, conjonctive_only = True, show_steps = False):
+        if not conjonctive_only:
+            raise Exception('feature undevelopped yet')
+        
+        # ignore useless sources, where there's total ignorance
+        sources = [s for s in self if s[self.omega] < 1]
+
+        # nothing to do if there isn't two sources to combine at least, return one of the sources 
+        if len(sources) == 0:
+            return self[0]
+        elif len(sources) == 1:
+            return sources[0]
+
+        # combine sources two by two
+        i = 0
+        s1 = sources[i]; i += 1
+        count = 1
+        while i < len(sources):
+            s2 = sources[i]; i += 1
+            res = s1.combine_conjunctive(s2, normalization=True)
+            if show_steps:
+                print(f'combinaison {count} :'); count += 1
+                print('k =', s1.conflict(s2))
+                print(Masse(res, self.omega))
+
+            s1 = res
+        return Masse(s1, self.omega)
 
 
 def set_to_str(s):
