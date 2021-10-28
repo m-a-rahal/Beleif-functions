@@ -1,7 +1,7 @@
 from my_pyds import Sources
 
-def main():
-    global sources
+def init(show = True):
+    global sources 
     # exercice 1
     # on écrit Ω comme étant des mots séparés par des virgules
     omega = 'p, c, s'
@@ -14,8 +14,10 @@ def main():
     sources.add({'p,c,s' : 1})
 
     # afficher les masses des sources
-    print(sources)
+    if show: print(sources)
+    return sources
 
+def main():
     # affaiblir la source 1 (indice 0) avec un taux α = 0.12
     source_infiable = 0
     alpha = 0.12
@@ -30,4 +32,5 @@ def main():
     print(m)
 
 if __name__ == '__main__':
+    init()
     main()

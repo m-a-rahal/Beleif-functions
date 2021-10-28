@@ -177,7 +177,7 @@ class Sources(list):
         print(f'resource {source_index+1} :')
         print(self[source_index])
 
-    def combine(self, conjonctive_only = True, show_steps = False):
+    def combine(self, show_steps = False, conjonctive_only = True):
         if not conjonctive_only:
             raise Exception('feature undevelopped yet')
         

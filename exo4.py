@@ -1,7 +1,9 @@
 from my_pyds import Sources, pritty_print, show_dict
 
-def main():
-    global sources
+sources = None
+
+def init(show = True):
+    global sources # making sources public will help us in the presentation so we can import sources and simply print out the different stuff (interactive mode)
     # exercice 4
     # on écrit Ω comme étant des mots séparés par des virgules
     omega = 'énergies_fossiles, transport, centrales_therm, chauff_bois, naturel'
@@ -15,8 +17,11 @@ def main():
     , normalize = True)
 
     # afficher les masses des sources
-    print(sources)
+    if show: print(sources)
+    return sources
 
+
+def main():
     # afficher les beleifs et plaisibilités pour la première source (premier expert)
     pritty_print('beleifs (non nuls) du premier expert ')
     show_dict(sources[0].bel(), skip_null_values = True)
@@ -31,4 +36,5 @@ def main():
     print(m)
 
 if __name__ == '__main__':
+    init()
     main()
