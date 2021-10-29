@@ -154,7 +154,7 @@ class Mass(MassFunction):
     def __str__(self):
         text = ''
         for k,v in sorted(self.items(), key = lambda x : len(x[0])):
-            if v > 0.0 or k == self.frame():
+            if round(v, DECIMAL_PRECISTION) > 0.0:
                 text += f'{set_to_str(k)} : {round(v,DECIMAL_PRECISTION)}\n'
         return text
 
