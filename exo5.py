@@ -18,12 +18,18 @@ def init(show = True):
 
 
 def main():
-    # afficher les beleifs et plaisibilités pour la première source (premier expert)
-    pritty_print('beleifs (non nuls) du premier expert ')
-    show_dict(sources[0].bel(), skip_null_values = True)
+    # afficher les beleifs et plaisibilités pour les trois experts
+    for i,s in enumerate(sources):
+        pritty_print(f'beleifs (non nuls) de l\'expert {i+1}')
+        show_dict(s.bel(), skip_null_values = True)
 
-    pritty_print('plausibilités (non nuls) du premier expert ')
-    show_dict(sources[0].pl(), skip_null_values = True)
+        pritty_print(f'plausibilités (non nuls) du premier l\'expert {i+1}')
+        show_dict(s.pl(), skip_null_values = True)
+
+    # afficher les degres de doutes pour les trois experts
+    for i,s in enumerate(sources):
+        pritty_print(f'doutes (non nuls) de l\'expert {i+1}')
+        show_dict(s.doubt(), skip_null_values = True)
 
     # combiner les sources (en ignorant celles avec m(Ω) = 1)
     pritty_print("combinaison des sources (commes rien n'est indiqué, les sources sont considérés fiables, et la combinaison de ces dérnier est faite en conjonction)")

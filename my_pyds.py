@@ -1,4 +1,4 @@
-from pyds import MassFunction
+from pyds import MassFunction, powerset
 import time
 DECIMAL_PRECISTION = 5 # round values for before printing them on screen
 
@@ -100,6 +100,14 @@ class Mass(MassFunction):
         # if none of the above is true, it's the general case
         return 'cadre général de la théorie des fonctions de croyance' if return_str else GENERAL
 
+    def doubt(self, hypothesis = None):
+        """
+        calculates the doubt of a hypothesis, doubt(A) = 1 - bel(A), ∀A ⊂ Ω
+        """
+        if hypothesis is None:
+            return {h:self.doubt(h) for h in powerset(self.core())}
+        else:
+            return 1 - self.bel(hypothesis)
 
 
     @staticmethod
